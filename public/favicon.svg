@@ -1,0 +1,15 @@
+<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="8" y="4" width="18" height="26" rx="3" transform="rotate(-15 8 4)" fill="url(#paint0_linear_mint)"/>
+  <rect x="14" y="10" width="18" height="26" rx="3" fill="url(#paint1_linear_melon)"/>
+  <path d="M14 13C14 11.3431 15.3431 10 17 10H32V24L14 15V13Z" fill="white" fill-opacity="0.15"/>
+  <defs>
+    <linearGradient id="paint0_linear_mint" x1="8" y1="4" x2="26" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10B981"/>
+      <stop offset="1" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="paint1_linear_melon" x1="14" y1="10" x2="32" y2="36" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF4B72"/>
+      <stop offset="1" stop-color="#F43F5E"/>
+    </linearGradient>
+  </defs>
+</svg>

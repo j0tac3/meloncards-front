@@ -1,0 +1,81 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+  <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-200">
+    
+    <h2 class="text-3xl font-bold mb-2 text-center text-gray-800">
+      {{ isLoginMode() ? '¡Bienvenido de nuevo!' : 'Crear Cuenta' }}
+    </h2>
+    <p class="text-center text-gray-500 mb-6 text-sm">
+      {{ isLoginMode() ? 'Introduce tus credenciales para acceder' : 'Regístrate para empezar tu colección' }}
+    </p>
+    
+    @if (errorMessage()) {
+      <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-lg mb-4 text-sm font-medium flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form (ngSubmit)="onSubmit()" class="space-y-4">
+      
+      @if (!isLoginMode()) {
+        <div>
+          <label class="block text-gray-700 text-sm font-semibold mb-1">Nombre Completo</label>
+          <input 
+            type="text" 
+            name="name" 
+            [(ngModel)]="formData.name" 
+            required
+            placeholder="Tu nombre"
+            class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-300 outline-none transition">
+        </div>
+      }
+
+      <div>
+        <label class="block text-gray-700 text-sm font-semibold mb-1">Correo Electrónico</label>
+        <input 
+          type="email" 
+          name="email" 
+          [(ngModel)]="formData.email" 
+          required
+          placeholder="ejemplo@correo.com"
+          class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-300 outline-none transition">
+      </div>
+      
+      <div>
+        <label class="block text-gray-700 text-sm font-semibold mb-1">Contraseña</label>
+        <input 
+          type="password" 
+          name="password" 
+          [(ngModel)]="formData.password" 
+          required
+          placeholder="••••••••"
+          class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 border-gray-300 outline-none transition">
+      </div>
+
+      <button 
+        type="submit" 
+        [disabled]="isLoading()"
+        class="w-full bg-blue-600 text-white font-bold py-2.5 px-4 rounded-xl hover:bg-blue-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed mt-2">
+        @if (isLoading()) {
+          <span class="animate-pulse">Procesando...</span>
+        } @else {
+          {{ isLoginMode() ? 'Entrar' : 'Registrarse' }}
+        }
+      </button>
+    </form>
+
+    <div class="mt-6 text-center border-t pt-4 border-gray-100">
+      <p class="text-sm text-gray-600">
+        {{ isLoginMode() ? '¿No tienes una cuenta aún?' : '¿Ya tienes una cuenta creada?' }}
+        <button 
+          (click)="toggleMode()" 
+          class="text-blue-600 font-bold hover:underline focus:outline-none ml-1 cursor-pointer">
+          {{ isLoginMode() ? 'Regístrate aquí' : 'Inicia sesión aquí' }}
+        </button>
+      </p>
+    </div>
+
+  </div>
+</div>

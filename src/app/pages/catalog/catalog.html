@@ -1,0 +1,110 @@
+<<div class="container mx-auto p-6">
+  
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div class="flex items-center gap-4">
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Catálogo de Cartas</h1>
+
+      @if (availableGames().length > 0) {
+        <select 
+          (change)="onGameChange($event)"
+          class="border border-indigo-200 dark:border-indigo-800 rounded-lg px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition cursor-pointer">
+          @for (game of availableGames(); track game.id) {
+            <option [value]="game.id" [selected]="game.id === currentGameId()">{{ game.name }}</option>
+          }
+        </select>
+      }
+    </div>
+
+    @if (availableRegions().length > 0) {
+      <div class="flex items-center space-x-2">
+        <label for="regionSelect" class="text-gray-600 dark:text-gray-400 font-medium text-sm">Versión:</label>
+        <select 
+          id="regionSelect"
+          (change)="onRegionChange($event)"
+          class="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition">
+          @for (region of availableRegions(); track region.code) {
+            <option [value]="region.code" [selected]="region.code === currentRegion()">{{ region.name }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+
+  <app-search-bar 
+    [sets]="availableSets()" 
+    (onFilterChange)="handleFilterChange($event)">
+  </app-search-bar>
+
+  @if (isLoading()) {
+    <div class="text-center text-gray-500 text-xl mt-10">
+      Cargando cartas desde la Pokédex...
+    </div>
+  } @else {
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+      
+      @for (card of cards(); track card.id) {
+        <app-card 
+          [card]="card" 
+          [isAuthenticated]="isAuthenticated()" 
+          [gameSlug]="currentGameSlug()"
+          [currentRegion]="currentRegion()" (addClick)="openModal(card)">
+        </app-card>
+      } @empty {
+        <div class="col-span-full text-center text-gray-500 py-10">
+          No se encontraron cartas en la base de datos.
+        </div>
+      }
+
+    </div>
+
+    <div class="flex justify-center items-center mt-10 space-x-2 pb-10">
+      
+      <button 
+        (click)="prevPage()" 
+        [disabled]="currentPage() === 1"
+        class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition">
+        &laquo;
+      </button>
+
+      @for (page of visiblePages(); track $index) {
+        
+        @if (page === '...') {
+          <span class="px-2 py-2 text-gray-500 font-bold">...</span>
+        } @else {
+          <button
+            (click)="goToPage(page)"
+            [class.bg-blue-600]="page === currentPage()"
+            [class.text-white]="page === currentPage()"
+            [class.bg-gray-200]="page !== currentPage()"
+            [class.text-gray-700]="page !== currentPage()"
+            class="px-4 py-2 rounded-lg font-medium hover:bg-blue-500 hover:text-white transition cursor-pointer">
+            {{ page }}
+          </button>
+        }
+
+      }
+
+      <button 
+        (click)="nextPage()" 
+        [disabled]="currentPage() === lastPage()"
+        class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition">
+        &raquo;
+      </button>
+      
+    </div>
+
+  } 
+</div>
+
+@if (isModalOpen() && selectedCard()) {
+  <app-collection-modal 
+    [card]="selectedCard()" 
+    [currentRegion]="currentRegion()" 
+    [availableRegions]="availableRegions()"
+    [hasPrev]="hasPrevCard()"
+    [hasNext]="hasNextCard()"
+    (close)="closeModal()"
+    (navigate)="navigateModal($event)"
+    (onCollectionChange)="refreshSpecificCard(selectedCard().id)"> 
+  </app-collection-modal>
+}

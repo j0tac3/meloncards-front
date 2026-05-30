@@ -1,0 +1,34 @@
+/* El efecto de brillo base */
+.holo-glare {
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.4) 25%,
+    rgba(255, 255, 255, 0.5) 28%,
+    transparent 32%
+  );
+  background-size: 200% 200%;
+  background-position: 100% 100%;
+  transition: background-position 0.6s ease-out, opacity 0.3s ease;
+  opacity: 0; /* Invisible por defecto */
+}
+
+/* Al hacer hover en la tarjeta (.group es la tarjeta padre), el brillo cruza y se hace visible */
+.holo-glare {
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.15) 28%,
+    transparent 32%
+  );
+  background-size: 200% 200%;
+  background-position: 100% 100%;
+  transition: background-position 0.6s ease-out, opacity 0.3s ease;
+  opacity: 0;
+  filter: blur(3px); /* Difumina los bordes del reflejo */
+}
+.group:hover .holo-glare {
+  background-position: 0% 0%;
+  opacity: 1;
+}
