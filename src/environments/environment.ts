@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'hhttps://meloncards-backend.onrender.com/api' // La URL de tu servidor Laravel
+  apiUrl: 'https://api.melonapps.es' // La URL de tu servidor Laravel
 };
