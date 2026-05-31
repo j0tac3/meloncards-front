@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://api.melonapps.es' // La URL de tu servidor Laravel
+  apiUrl: 'https://api.melonapps.es/api' // La URL de tu servidor Laravel
 };
