@@ -8,6 +8,7 @@ import { CollectionModalComponent } from '../../components/collection-modal/coll
 import { CardComponent } from '../../components/card/card';
 import { SearchBarComponent } from '../../components/search-bar/search-bar';
 import { isPlatformBrowser } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-catalog',
@@ -17,6 +18,8 @@ import { isPlatformBrowser } from '@angular/common';
   templateUrl: './catalog.html'
 })
 export class CatalogComponent implements OnInit {
+  route = inject(ActivatedRoute);
+
   catalogService = inject(CatalogService);
   authService = inject(AuthService);
   collectionService = inject(CollectionService); 
@@ -96,10 +99,26 @@ export class CatalogComponent implements OnInit {
   });
 
   ngOnInit() {
+    // 1. Lo que ya tenías (se ejecuta normal)
     this.isAuthenticated.set(this.authService.isAuthenticated());
     this.loadGameSettings(); 
     this.loadGames(); 
     this.loadCardStates();
+
+    // 2. 🚀 NUEVO: Escuchar si venimos de la pantalla de Sets
+    this.route.queryParams.subscribe(params => {
+      const setIdFromUrl = params['set'];
+
+      if (setIdFromUrl) {
+        // ACTUALIZA AQUÍ el nombre de tu variable. 
+        // Si usas una señal para guardar el ID de la caja seleccionada, ponlo aquí.
+        this.currentSetId.set(Number(setIdFromUrl)); 
+        
+        // ⚠️ IMPORTANTE: Aquí debes llamar a tu función que carga las cartas
+        // Por ejemplo: this.applyFilters() o this.loadCards()
+        this.loadCards(); 
+      }
+    });
   }
 
   loadGames() {

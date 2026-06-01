@@ -9,9 +9,10 @@ export class CatalogService {
   private apiUrl = environment.apiUrl;
 
   // 1. Obtener la lista de expansiones (Apunta a /sets)
-  getSets(gameId: number): Observable<any[]> {
-    let params = new HttpParams().set('game_id', gameId.toString());
-    return this.http.get<any[]>(`${this.apiUrl}/sets`, { params });
+  // En tu catalog.service.ts
+getSets(gameId: number, region: string = 'en') {
+    // Asegúrate de que la URL apunta a tu backend correctamente
+    return this.http.get<any[]>(`${this.apiUrl}/sets?game_id=${gameId}&region=${region}`);
   }
 
   // 2. Obtener el catálogo filtrado y paginado (Apunta a /cards)
