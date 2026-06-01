@@ -13,6 +13,8 @@ export class SearchBarComponent implements OnInit {
 
   sets = input<any[]>([]); 
   onFilterChange = output<{ search: string; card_set_id: number | null }>();
+  // 1. Añade este nuevo output (debajo del onFilterChange)
+  onDownloadChecklist = output<number>();
 
   private searchTxt = '';
   
@@ -47,4 +49,12 @@ export class SearchBarComponent implements OnInit {
       card_set_id: this.selectedSetId
     });
   }
+
+  // 2. Añade la función que se ejecuta al hacer clic en el botón
+  onDownloadClick() {
+    if (this.selectedSetId) {
+      this.onDownloadChecklist.emit(this.selectedSetId);
+    }
+  }
+  
 }

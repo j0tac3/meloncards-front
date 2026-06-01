@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angul
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { CatalogService } from '../../services/catalog.service';
+import { CardService } from '../../services/card';
 
 @Component({
   selector: 'app-sets-view',
@@ -10,6 +11,8 @@ import { CatalogService } from '../../services/catalog.service';
   templateUrl: './sets.html'
 })
 export class SetsComponent implements OnInit {
+  constructor(private cardService: CardService) {}
+
   catalogService = inject(CatalogService);
   router = inject(Router);
   platformId = inject(PLATFORM_ID);
@@ -94,5 +97,9 @@ export class SetsComponent implements OnInit {
 
   goToCatalog(setId: number) {
     this.router.navigate(['/catalog'], { queryParams: { set: setId } });
+  }
+
+  onDescargarPdf(setCode: string) {
+    this.cardService.descargarChecklist(setCode);
   }
 }

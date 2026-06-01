@@ -32,7 +32,8 @@
 
   <app-search-bar 
     [sets]="availableSets()" 
-    (onFilterChange)="handleFilterChange($event)">
+    (onFilterChange)="handleFilterChange($event)"
+    (onDownloadChecklist)="handleDownloadPdf($event)"> 
   </app-search-bar>
 
   @if (isLoading()) {

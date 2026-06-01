@@ -9,15 +9,17 @@ import { CardComponent } from '../../components/card/card';
 import { SearchBarComponent } from '../../components/search-bar/search-bar';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
+import { CardService } from '../../services/card'; // Ajusta la ruta a tu proyecto
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  // 🚀 LIMPIO: Sin FormsModule en los imports
   imports: [CollectionModalComponent, CardComponent, SearchBarComponent],
   templateUrl: './catalog.html'
 })
 export class CatalogComponent implements OnInit {
+  cardService = inject(CardService);
+
   route = inject(ActivatedRoute);
 
   catalogService = inject(CatalogService);
@@ -299,5 +301,15 @@ export class CatalogComponent implements OnInit {
         );
       }
     });
+  }
+
+  handleDownloadPdf(setId: number) {
+    // Buscamos el Set en el array que ya tenemos cargado
+    const setSeleccionado = this.availableSets().find(s => s.id === setId);
+    
+    if (setSeleccionado && setSeleccionado.code) {
+      // Llamamos al servicio para descargar el PDF
+      this.cardService.descargarChecklist(setSeleccionado.code);
+    }
   }
 }
