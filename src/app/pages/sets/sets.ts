@@ -1,13 +1,13 @@
 import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { CatalogService } from '../../services/catalog.service';
 import { CardService } from '../../services/card';
+import { isPlatformBrowser, LowerCasePipe, TitleCasePipe, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-sets-view',
   standalone: true,
-  imports: [], // 🚀 LIMPIO: Sin dependencias de formularios
+  imports: [LowerCasePipe, TitleCasePipe, DatePipe], // 🚀 LIMPIO: Sin dependencias de formularios
   templateUrl: './sets.html'
 })
 export class SetsComponent implements OnInit {
