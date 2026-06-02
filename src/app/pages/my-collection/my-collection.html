@@ -18,6 +18,44 @@
     }
   </div>
 
+  <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row gap-4 items-center">
+    <div class="relative w-full sm:flex-grow">
+      <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </span>
+      <input 
+        type="text"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        placeholder="Buscar cartas por nombre o número..."
+        class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+    </div>
+
+    <div class="w-full sm:w-auto">
+      <select 
+        [ngModel]="selectedSetFilter()"
+        (ngModelChange)="selectedSetFilter.set($event)"
+        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-indigo-500">
+        <option value="all">Todas las expansiones</option>
+        @for (setName of availableSets(); track setName) {
+          <option [value]="setName">{{ setName }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="w-full sm:w-auto">
+      <select 
+        [ngModel]="sortBy()"
+        (ngModelChange)="sortBy.set($event)"
+        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-indigo-500">
+        <option value="newest">Últimas añadidas</option>
+        <option value="price_desc">Precio: de Mayor a Menor</option>
+        <option value="price_asc">Precio: de Menor a Mayor</option>
+        <option value="name_asc">Nombre: A-Z</option>
+      </select>
+    </div>
+  </div>
+
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
       <div class="p-3 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg">
@@ -48,6 +86,18 @@
         <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ totalFoilCards() }}</p>
       </div>
     </div>
+
+    <div class="bg-gradient-to-br from-white to-amber-50/40 dark:from-slate-900 dark:to-amber-950/10 p-5 rounded-xl border border-amber-200/60 dark:border-amber-900/30 shadow-sm flex items-center gap-4">
+      <div class="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-amber-700/80 dark:text-amber-400/80">Valor de Bóveda</p>
+        <p class="text-2xl font-black text-amber-600 dark:text-amber-400">
+          {{ totalCollectionValue() | currency:'EUR':'symbol':'1.2-2':'es-ES' }}
+        </p>
+      </div>
+    </div>
   </div>
 
   @if (isLoading()) {
@@ -66,27 +116,69 @@
       </a>
     </div>
   } @else {
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-      @for (card of myCards(); track card.collection_id) {
-        <div class="relative rounded-xl overflow-hidden shadow-sm transition-transform duration-200 md:hover:-translate-y-1 cursor-pointer group bg-slate-100 dark:bg-slate-800">
+    
+    <div class="flex flex-col gap-6">
+      @for (set of groupedBySet(); track set.set_name) {
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden transition-all">
           
-          @if (card.quantity > 1) {
-            <div class="absolute top-2 right-2 z-10 bg-slate-900/80 backdrop-blur-md text-white px-2 py-0.5 rounded-md text-xs font-bold border border-white/10 shadow-sm">
-              x{{ card.quantity }}
+          <header 
+            (click)="toggleSetCollapse(set.set_name)"
+            class="w-full p-4 bg-slate-50/60 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/80 transition select-none">
+            <div class="flex items-center gap-3">
+              <svg 
+                class="w-4 h-4 text-slate-400 transition-transform duration-300"
+                [class.rotate-180]="isSetCollapsed(set.set_name)"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+              </svg>
+              <h2 class="text-base font-extrabold text-slate-800 dark:text-slate-200 tracking-tight uppercase">
+                {{ set.set_name }}
+              </h2>
+            </div>
+
+            <div class="flex items-center gap-4 text-xs font-semibold self-end sm:self-center">
+              <span class="text-slate-400">
+                Posees: <strong class="text-slate-700 dark:text-slate-300">{{ set.unique_count }}</strong> cartas únicas
+              </span>
+              <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
+              <span class="text-amber-600 dark:text-amber-400 font-bold">
+                Valor Set: {{ set.total_value | currency:'EUR':'symbol':'1.2-2':'es-ES' }}
+              </span>
+            </div>
+          </header>
+
+          @if (!isSetCollapsed(set.set_name)) {
+            <div class="p-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 animate-in fade-in slide-in-from-top-1 duration-200">
+              @for (card of set.cards; track card.collection_id) {
+                <div (click)="openModal(card)" class="cursor-pointer">
+                  <app-card 
+                    [card]="card" 
+                    [isAuthenticated]="true" 
+                    [gameSlug]="gameSlug()"
+                    (addClick)="openModal(card)">
+                  </app-card>
+                </div>
+              }
             </div>
           }
-
-          <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
-            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/20 text-white backdrop-blur-sm">{{ card.state }}</span>
-            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/20 text-white backdrop-blur-sm uppercase">{{ card.language }}</span>
-            @if (card.is_foil) { <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/80 text-white backdrop-blur-sm">Foil</span> }
-          </div>
-
-          <!-- 🚀 Proxy anti-hotlinking -->
-          <img [src]="'https://wsrv.nl/?url=' + card.image_url" [alt]="card.name" referrerpolicy="no-referrer" class="w-full h-auto object-cover border border-slate-200 dark:border-slate-700 rounded-xl" loading="lazy">
+        </div>
+      } @empty {
+        <div class="text-center py-12 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+          <p class="text-slate-500 dark:text-slate-400 font-medium text-sm">Ninguna carta de tu inventario coincide con los filtros aplicados.</p>
+          <button (click)="searchTerm.set(''); selectedSetFilter.set('all')" class="mt-3 text-sm text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Limpiar Filtros</button>
         </div>
       }
     </div>
   }
 
+  @if (selectedCard()) {
+    <app-collection-modal
+      [card]="selectedCard()"
+      [hasPrev]="hasPrev()"
+      [hasNext]="hasNext()"
+      (navigate)="onNavigate($event)"
+      (close)="closeModal()"
+      (onCollectionChange)="loadMyCollection(currentGameId()!)">
+    </app-collection-modal>
+  }
 </div>

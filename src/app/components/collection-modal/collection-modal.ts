@@ -1,5 +1,5 @@
-// 🚀 1. Importamos OnDestroy, PLATFORM_ID, DOCUMENT e isPlatformBrowser
-import { Component, OnInit, OnDestroy, inject, signal, input, output, computed, effect, untracked, PLATFORM_ID } from '@angular/core';
+// 🚀 Importamos HostListener para escuchar la tecla ESC
+import { Component, OnInit, OnDestroy, inject, signal, input, output, computed, effect, untracked, PLATFORM_ID, HostListener } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { CollectionService } from '../../services/collection';
 import { CurrencyPipe } from '@angular/common';
@@ -10,24 +10,23 @@ import { CurrencyPipe } from '@angular/common';
   imports: [CurrencyPipe], 
   templateUrl: './collection-modal.html'
 })
-export class CollectionModalComponent implements OnInit, OnDestroy { // 🚀 2. Implementamos OnDestroy
+export class CollectionModalComponent implements OnInit, OnDestroy {
   private collectionService = inject(CollectionService);
   
-  // 🚀 3. Inyectamos utilidades del navegador
   private document = inject(DOCUMENT);
   private platformId = inject(PLATFORM_ID);
 
+  // --- INPUTS & OUTPUTS (Intocables, para no romper otros componentes) ---
   card = input.required<any>(); 
   currentRegion = input<string>('en'); 
   availableRegions = input<any[]>([]);
-  
   hasPrev = input<boolean>(false);
   hasNext = input<boolean>(false);
   navigate = output<'prev' | 'next'>();
-
   close = output<void>();       
   onCollectionChange = output<void>();
 
+  // --- ESTADO INTERNO ---
   cardStates = signal<any[]>([]);
   ownedCopies = signal<any[]>([]);
   isCheckingCopies = signal<boolean>(true);
@@ -38,6 +37,12 @@ export class CollectionModalComponent implements OnInit, OnDestroy { // 🚀 2. 
   formQuantity = signal<number>(1);
   deletingIds = signal<number[]>([]);
 
+  // 🚀 NUEVOS ESTADOS DE UX
+  isSaving = signal<boolean>(false);
+  saveSuccess = signal<boolean>(false);
+  isImageLoaded = signal<boolean>(false);
+
+  // Estados de la Lupa
   isZoomActive = signal<boolean>(false);
   showZoom = signal<boolean>(false);
   zoomCursorX = signal<number>(0);
@@ -45,11 +50,18 @@ export class CollectionModalComponent implements OnInit, OnDestroy { // 🚀 2. 
   zoomBgX = signal<number>(0);
   zoomBgY = signal<number>(0);
 
+  // 🚀 ESCUCHAR TECLA ESCAPE PARA CERRAR
+  @HostListener('window:keydown.escape')
+  handleKeyDown() {
+    this.close.emit();
+  }
+
   constructor() {
     effect(() => {
       const currentCard = this.card();
       untracked(() => {
         if (currentCard) {
+          this.isImageLoaded.set(false); // 🚀 Reseteamos la imagen al cambiar de carta
           this.isCheckingCopies.set(true);
           this.checkCopies();
           this.formQuantity.set(1);
@@ -108,17 +120,14 @@ export class CollectionModalComponent implements OnInit, OnDestroy { // 🚀 2. 
   });
 
   ngOnInit() {
-    // 🚀 BLOQUEAMOS EL SCROLL AL ABRIR
     if (isPlatformBrowser(this.platformId)) {
       this.document.body.classList.add('overflow-hidden');
     }
-    
     this.formLanguage.set(this.currentRegion()); 
     this.loadCardStates();
   }
 
   ngOnDestroy() {
-    // 🚀 DEVOLVEMOS EL SCROLL AL CERRAR
     if (isPlatformBrowser(this.platformId)) {
       this.document.body.classList.remove('overflow-hidden');
     }
@@ -131,10 +140,8 @@ export class CollectionModalComponent implements OnInit, OnDestroy { // 🚀 2. 
 
   handleMouseMove(event: MouseEvent) {
     if (!this.isZoomActive()) return;
-    
     const img = event.currentTarget as HTMLImageElement;
     const rect = img.getBoundingClientRect();
-    
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
@@ -197,8 +204,11 @@ export class CollectionModalComponent implements OnInit, OnDestroy { // 🚀 2. 
     });
   }
 
+  // 🚀 MÉTODO SAVE MEJORADO
   save() {
-    if (!this.formStateId()) return;
+    if (!this.formStateId() || this.isSaving()) return;
+
+    this.isSaving.set(true); // Bloqueamos el botón temporalmente
 
     const payload = {
       card_template_id: this.card().id,
@@ -226,7 +236,13 @@ export class CollectionModalComponent implements OnInit, OnDestroy { // 🚀 2. 
 
         this.formIsFoil.set(false);
         this.formQuantity.set(1);
-      }
+
+        // 🚀 Micro-interacción de éxito
+        this.isSaving.set(false);
+        this.saveSuccess.set(true);
+        setTimeout(() => this.saveSuccess.set(false), 2000);
+      },
+      error: () => this.isSaving.set(false)
     });
   }
 

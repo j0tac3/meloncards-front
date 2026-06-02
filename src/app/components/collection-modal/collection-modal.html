@@ -1,8 +1,11 @@
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-4 sm:p-6 transition-all">
+<!-- Fondo que también emite 'close' al hacer clic fuera -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-4 sm:p-6 transition-all" (click)="close.emit()">
   
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col md:flex-row relative ring-1 ring-white/20">
+  <!-- 🚀 CAMBIO 1: El modal principal ahora es overflow-y-auto en móvil y overflow-hidden en PC -->
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col md:flex-row relative ring-1 ring-white/20 overflow-y-auto md:overflow-hidden custom-scrollbar" (click)="$event.stopPropagation()">
     
-    <button (click)="close.emit()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-all duration-300 z-50 rounded-full p-2.5">
+    <!-- 🚀 CAMBIO 2: El botón de cerrar es FIXED en móvil (flota siempre) y ABSOLUTE en PC -->
+    <button (click)="close.emit()" class="fixed md:absolute top-6 right-6 md:top-5 md:right-5 text-slate-500 hover:text-slate-800 bg-white/90 md:bg-transparent md:hover:bg-slate-100 backdrop-blur-md md:backdrop-blur-none shadow-md md:shadow-none transition-all duration-300 z-[60] rounded-full p-2.5 border border-slate-200 md:border-transparent">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
       </svg>
@@ -23,7 +26,7 @@
         </button>
       }
 
-      <div class="relative z-10 w-full max-w-sm">
+      <div class="relative z-10 w-full max-w-sm min-h-[300px] flex items-center justify-center">
         
         <button (click)="toggleZoom()" 
           class="absolute top-3 right-3 z-50 p-2.5 rounded-xl shadow-lg border transition-all duration-300 flex items-center justify-center gap-2 opacity-100 md:opacity-0 md:group-hover/nav:opacity-100 backdrop-blur-md"
@@ -33,19 +36,32 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
         </button>
 
+        @if (!isImageLoaded()) {
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-full h-full max-h-[70vh] bg-slate-200/50 animate-pulse rounded-xl shadow-inner border border-white/50 flex items-center justify-center">
+              <svg class="animate-spin h-8 w-8 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </div>
+          </div>
+        }
+
+        <!-- 🚀 CAMBIO 3: max-h-[45vh] en móvil para que no sea inmensa y deje ver que hay info debajo -->
         <img 
           [src]="imageUrl()" 
           [alt]="cardName()" 
+          (load)="isImageLoaded.set(true)"
           referrerpolicy="no-referrer"
           (mousemove)="handleMouseMove($event)"
           (mouseenter)="isZoomActive() ? showZoom.set(true) : null"
           (mouseleave)="showZoom.set(false)"
-          [class.cursor-crosshair]="isZoomActive()"
-          class="w-full max-h-[70vh] object-contain drop-shadow-[0_25px_35px_rgba(0,0,0,0.45)] transition-all duration-500 rounded-xl"
-          [class.hover:-translate-y-2]="!isZoomActive()" 
-          [class.hover:drop-shadow-[0_35px_45px_rgba(0,0,0,0.55)]]="!isZoomActive()">
+          class="w-full max-h-[45vh] md:max-h-[70vh] object-contain transition-all duration-500 rounded-xl"
+          [class.opacity-0]="!isImageLoaded()"
+          [class.opacity-100]="isImageLoaded()"
+          [class.drop-shadow-[0_25px_35px_rgba(0,0,0,0.45)]]="isImageLoaded()"
+          [class.hover:-translate-y-2]="!isZoomActive() && isImageLoaded()" 
+          [class.hover:drop-shadow-[0_35px_45px_rgba(0,0,0,0.55)]]="!isZoomActive() && isImageLoaded()"
+          [class.cursor-crosshair]="isZoomActive()">
           
-        @if (isZoomActive() && showZoom()) {
+        @if (isZoomActive() && showZoom() && isImageLoaded()) {
           <div class="pointer-events-none absolute z-40 border-[3px] border-white shadow-[0_20px_40px_rgba(0,0,0,0.6)] rounded-2xl bg-white overflow-hidden transition-opacity duration-75"
                style="width: 130%; height: 200px; left: 50%; transform: translate(-50%, -50%);"
                [style.top.px]="zoomCursorY()">
@@ -60,8 +76,9 @@
 
     </div>
 
-    <div class="w-full md:w-7/12 h-[95vh] md:h-auto rounded-b-[2rem] md:rounded-bl-none md:rounded-r-[2rem] overflow-hidden bg-white">
-      <div class="w-full h-full overflow-y-auto custom-scrollbar flex flex-col">
+    <!-- 🚀 CAMBIO 4: Contenedor derecho en h-auto en móvil y el scroll se aplica solo en PC (md:overflow-y-auto) -->
+    <div class="w-full md:w-7/12 h-auto md:max-h-[95vh] rounded-b-[2rem] md:rounded-bl-none md:rounded-r-[2rem] bg-white">
+      <div class="w-full h-full md:overflow-y-auto custom-scrollbar flex flex-col">
         <div class="p-8 md:p-10 flex-grow relative">
           
           <div class="w-full pr-12 mb-5">
@@ -184,9 +201,23 @@
               
             </div>
 
-            <button (click)="save()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98]">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
-              Añadir a mi Colección
+            <button 
+              (click)="save()" 
+              [disabled]="isSaving()"
+              class="w-full font-bold py-4 px-4 rounded-xl shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-80 disabled:cursor-wait"
+              [class.bg-blue-600]="!saveSuccess()" [class.hover:bg-blue-700]="!saveSuccess()" [class.text-white]="!saveSuccess()"
+              [class.bg-emerald-500]="saveSuccess()" [class.hover:bg-emerald-600]="saveSuccess()" [class.text-white]="saveSuccess()"
+            >
+              @if (isSaving()) {
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                Guardando...
+              } @else if (saveSuccess()) {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                ¡Añadida al Inventario!
+              } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                Añadir a mi Colección
+              }
             </button>
           </div>
 
