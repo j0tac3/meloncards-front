@@ -1,4 +1,4 @@
-import { Component, input, output, inject, OnInit } from '@angular/core';
+import { Component, input, output, inject, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -8,28 +8,40 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './search-bar.html'
 })
 export class SearchBarComponent implements OnInit {
-  // 🚀 Inyectamos la ruta para leer los parámetros URL
   route = inject(ActivatedRoute); 
 
   sets = input<any[]>([]); 
   onFilterChange = output<{ search: string; card_set_id: number | null }>();
-  // 1. Añade este nuevo output (debajo del onFilterChange)
   onDownloadChecklist = output<number>();
 
   private searchTxt = '';
-  
-  // 🚀 Quitamos 'private' para que sea accesible desde el HTML
   selectedSetId: number | null = null; 
 
+  // 🚀 NUEVO: Estado del Custom Dropdown / Bottom Sheet
+  isDropdownOpen = signal<boolean>(false);
+  dropdownSearchTxt = signal<string>('');
+
+  // 🚀 NUEVO: Filtro en tiempo real para el menú flotante
+  filteredSets = computed(() => {
+    const term = this.dropdownSearchTxt().toLowerCase();
+    if (!term) return this.sets();
+    return this.sets().filter(set => 
+      set.name.toLowerCase().includes(term) || 
+      set.code.toLowerCase().includes(term)
+    );
+  });
+
+  // 🚀 NUEVO: Obtener el objeto completo de la expansión seleccionada
+  selectedSet = computed(() => {
+    const id = this.selectedSetId;
+    if (!id) return null;
+    return this.sets().find(set => set.id === id) || null;
+  });
+
   ngOnInit() {
-    // 🚀 Escuchamos la URL de forma reactiva
     this.route.queryParams.subscribe(params => {
       const setIdFromUrl = params['set'];
-      if (setIdFromUrl) {
-        this.selectedSetId = Number(setIdFromUrl);
-      } else {
-        this.selectedSetId = null; // Si se limpia la URL, se resetea el selector
-      }
+      this.selectedSetId = setIdFromUrl ? Number(setIdFromUrl) : null;
     });
   }
 
@@ -38,9 +50,31 @@ export class SearchBarComponent implements OnInit {
     this.emitFilters();
   }
 
-  onSelectSet(value: string) {
-    this.selectedSetId = value === 'null' ? null : Number(value);
+  // 🚀 REFACTORIZADO: Lógica de selección del menú custom
+  onSelectCustomSet(setId: number | null) {
+    this.selectedSetId = setId;
+    this.closeDropdown();
     this.emitFilters();
+  }
+
+  // Controles del Dropdown
+  toggleDropdown() {
+    this.isDropdownOpen.update(v => !v);
+    if (this.isDropdownOpen()) this.dropdownSearchTxt.set(''); // Resetea el buscador al abrir
+  }
+
+  closeDropdown() {
+    this.isDropdownOpen.set(false);
+  }
+
+  updateDropdownSearch(term: string) {
+    this.dropdownSearchTxt.set(term);
+  }
+
+  onDownloadClick() {
+    if (this.selectedSetId) {
+      this.onDownloadChecklist.emit(this.selectedSetId);
+    }
   }
 
   private emitFilters() {
@@ -49,12 +83,4 @@ export class SearchBarComponent implements OnInit {
       card_set_id: this.selectedSetId
     });
   }
-
-  // 2. Añade la función que se ejecuta al hacer clic en el botón
-  onDownloadClick() {
-    if (this.selectedSetId) {
-      this.onDownloadChecklist.emit(this.selectedSetId);
-    }
-  }
-  
 }

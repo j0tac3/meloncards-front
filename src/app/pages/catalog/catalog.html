@@ -1,33 +1,44 @@
 <div class="container mx-auto p-6">
   
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-    <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Catálogo de Cartas</h1>
+  <div class="flex flex-col gap-4 mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+    Catálogo de Cartas
+  </h1>
 
-      @if (availableGames().length > 0) {
-        <select 
-          (change)="onGameChange($event)"
-          class="border border-indigo-200 dark:border-indigo-800 rounded-lg px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition cursor-pointer">
-          @for (game of availableGames(); track game.id) {
-            <option [value]="game.id" [selected]="game.id === currentGameId()">{{ game.name }}</option>
-          }
-        </select>
-      }
-    </div>
-
-    @if (availableRegions().length > 0) {
-      <div class="flex items-center space-x-2">
-        <label for="regionSelect" class="text-gray-600 dark:text-gray-400 font-medium text-sm">Versión:</label>
-        <select 
-          id="regionSelect"
-          (change)="onRegionChange($event)"
-          class="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition">
-          @for (region of availableRegions(); track region.code) {
-            <option [value]="region.code" [selected]="region.code === currentRegion()">{{ region.name }}</option>
-          }
-        </select>
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
+      <div class="flex items-center gap-2">
+        <label for="gameSelect" class="text-gray-600 dark:text-gray-400 font-medium text-sm whitespace-nowrap">
+          Colección:
+        </label>
+        @if (availableGames().length > 0) {
+          <select 
+            id="gameSelect"
+            (change)="onGameChange($event)"
+            class="border border-indigo-200 dark:border-indigo-800 rounded-lg px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition cursor-pointer w-full md:w-auto">
+            @for (game of availableGames(); track game.id) {
+              <option [value]="game.id" [selected]="game.id === currentGameId()">{{ game.name }}</option>
+            }
+          </select>
+        }
       </div>
-    }
+
+      @if (availableRegions().length > 0) {
+        <div class="flex items-center gap-2">
+          <label for="regionSelect" class="text-gray-600 dark:text-gray-400 font-medium text-sm whitespace-nowrap">
+            Versión:
+          </label>
+          <select 
+            id="regionSelect"
+            (change)="onRegionChange($event)"
+            class="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition cursor-pointer w-full md:w-auto">
+            @for (region of availableRegions(); track region.code) {
+              <option [value]="region.code" [selected]="region.code === currentRegion()">{{ region.name }}</option>
+            }
+          </select>
+        </div>
+      }
+      
+    </div>
   </div>
 
   <app-search-bar 
