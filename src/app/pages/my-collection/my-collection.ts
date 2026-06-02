@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, PLATFORM_ID, untracked } from '@angular/core';
 import { CollectionService } from '../../services/collection';
 import { GameService } from '../../services/game';
 import { RouterLink } from '@angular/router';
@@ -37,6 +37,41 @@ export class MyCollectionComponent implements OnInit {
 
   // 🚀 Listado de expansiones cerradas/colapsadas por el usuario
   collapsedSets = signal<string[]>([]);
+
+  groupedBySet = computed(() => {
+    const cards = this.processedCards();
+    const groupsMap = new Map<string, { set_name: string; set_total: number; unique_count: number; total_value: number; cards: any[] }>();
+
+    cards.forEach(card => {
+      const setName = card.set_name || 'Otros';
+      if (!groupsMap.has(setName)) {
+        groupsMap.set(setName, {
+          set_name: setName,
+          set_total: card.set_total || 0,
+          unique_count: 0,
+          total_value: 0,
+          cards: []
+        });
+      }
+      const group = groupsMap.get(setName)!;
+      group.cards.push(card);
+      group.total_value += (card.market_price || 0) * (card.quantity || 1);
+    });
+
+    const finalGroups = Array.from(groupsMap.values());
+
+    // 🔥 EL TRUCO: Cuando se calculan los grupos, los metemos todos en la lista de "colapsados"
+    // Usamos untracked para no crear un bucle infinito de reactividad
+    untracked(() => {
+      this.collapsedSets.set(finalGroups.map(g => g.set_name));
+    });
+
+    finalGroups.forEach(group => {
+      group.unique_count = group.cards.length;
+    });
+
+    return finalGroups;
+  });
 
   // 🎮 Deducción automática del slug del juego para renderizar los temas estéticos de las tarjetas
   gameSlug = computed(() => {
@@ -106,33 +141,7 @@ export class MyCollectionComponent implements OnInit {
     return cards;
   });
 
-  // 🚀 Agrupación de las cartas ya procesadas en colecciones de conjuntos estructurados
-  groupedBySet = computed(() => {
-    const cards = this.processedCards();
-    const groupsMap = new Map<string, { set_name: string; set_total: number; unique_count: number; total_value: number; cards: any[] }>();
-
-    cards.forEach(card => {
-      const setName = card.set_name || 'Otros';
-      if (!groupsMap.has(setName)) {
-        groupsMap.set(setName, {
-          set_name: setName,
-          set_total: card.set_total || 0,
-          unique_count: 0,
-          total_value: 0,
-          cards: []
-        });
-      }
-      const group = groupsMap.get(setName)!;
-      group.cards.push(card);
-      group.total_value += (card.market_price || 0) * (card.quantity || 1);
-    });
-
-    groupsMap.forEach(group => {
-      group.unique_count = group.cards.length;
-    });
-
-    return Array.from(groupsMap.values());
-  });
+  
 
   // 🚀 Lógica de navegación interna del modal (Sincronizada con el orden de filtrado actual)
   currentIndex = computed(() => {
