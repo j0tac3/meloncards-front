@@ -119,11 +119,14 @@
     
     <div class="flex flex-col gap-6">
       @for (set of groupedBySet(); track set.set_name) {
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden transition-all">
+        
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm transition-all relative">
           
           <header 
             (click)="toggleSetCollapse(set.set_name)"
-            class="w-full p-4 bg-slate-50/60 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/80 transition select-none">
+            class="sticky top-[73px] z-30 w-full p-4 bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition select-none shadow-sm rounded-t-xl"
+            [class.rounded-b-xl]="isSetCollapsed(set.set_name)">
+            
             <div class="flex items-center gap-3">
               <svg 
                 class="w-4 h-4 text-slate-400 transition-transform duration-300"
@@ -148,7 +151,7 @@
           </header>
 
           @if (!isSetCollapsed(set.set_name)) {
-            <div class="p-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 animate-in fade-in slide-in-from-top-1 duration-200">
+            <div class="p-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 animate-in fade-in slide-in-from-top-1 duration-200 rounded-b-xl bg-white dark:bg-slate-900">
               @for (card of set.cards; track card.collection_id) {
                 <div (click)="openModal(card)" class="cursor-pointer">
                   <app-card 
