@@ -78,8 +78,14 @@ export class CatalogComponent implements OnInit {
   });
 
   handleFilterChange(filters: { search: string; card_set_id: number | null }) {
+    // 1. Actualizamos los filtros
     this.currentSearch.set(filters.search);
     this.currentSetId.set(filters.card_set_id);
+    
+    // 🚀 2. LA CLAVE: Forzamos la señal de la página a 1
+    this.currentPage.set(1); 
+
+    // 3. Llamamos a cargar las cartas
     this.loadCards(1); 
   }
 
