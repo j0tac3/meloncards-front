@@ -7,7 +7,7 @@ import { isPlatformBrowser, LowerCasePipe, TitleCasePipe, DatePipe } from '@angu
 @Component({
   selector: 'app-sets-view',
   standalone: true,
-  imports: [LowerCasePipe, TitleCasePipe, DatePipe], // 🚀 LIMPIO: Sin dependencias de formularios
+  imports: [ DatePipe], // 🚀 LIMPIO: Sin dependencias de formularios
   templateUrl: './sets.html'
 })
 export class SetsComponent implements OnInit {
