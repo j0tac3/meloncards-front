@@ -11,12 +11,12 @@ export class CollectionService {
   private apiUrl = environment.apiUrl;
 
   // 🚀 NUEVO: Obtener la colección filtrando por Juego
-  getCollection(gameId?: number): Observable<any[]> {
-    let params = new HttpParams();
+  getCollection(gameId?: number, page: number = 1): Observable<any> {
+    let params = new HttpParams().set('page', page.toString());
     if (gameId) {
       params = params.set('game_id', gameId.toString());
     }
-    return this.http.get<any[]>(`${this.apiUrl}/collection`, { params });
+    return this.http.get<any>(`${this.apiUrl}/collection`, { params });
   }
 
   // 1. Obtener la lista maestra de estados (Mint, Near Mint...)
@@ -41,5 +41,12 @@ export class CollectionService {
 
   getOwnedCount(cardId: number) {
     return this.http.get<{owned_copies: number}>(`${this.apiUrl}/collection/count/${cardId}`);
+  }
+
+  toggleFavorite(collectionId: number) {
+    return this.http.post<{is_favorite: boolean, message: string}>(
+      `${this.apiUrl}/collection/${collectionId}/favorite`, 
+      {}
+    );
   }
 }

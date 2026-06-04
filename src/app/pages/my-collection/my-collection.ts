@@ -22,6 +22,7 @@ export class MyCollectionComponent implements OnInit {
   // 🎮 Signals de Juegos
   availableGames = signal<any[]>([]);
   currentGameId = signal<number | null>(null);
+  vaultValue = signal<number>(0);
 
   // Estado principal
   isLoading = signal<boolean>(true);
@@ -37,6 +38,8 @@ export class MyCollectionComponent implements OnInit {
 
   // 🚀 Listado de expansiones cerradas/colapsadas por el usuario
   collapsedSets = signal<string[]>([]);
+
+  showOnlyFavorites = signal<boolean>(false);
 
   groupedBySet = computed(() => {
     const cards = this.processedCards();
@@ -105,9 +108,9 @@ export class MyCollectionComponent implements OnInit {
   });
 
   // 🚀 Nuevo KPI: Valor total de la cartera acumulada en el juego seleccionado
-  totalCollectionValue = computed(() => {
+  /* totalCollectionValue = computed(() => {
     return this.myCards().reduce((acc, card) => acc + ((card.market_price || 0) * (card.quantity || 1)), 0);
-  });
+  }); */
 
   // 🚀 Aplicación de criterios de búsqueda, filtros y ordenación sobre la colección original
   processedCards = computed(() => {
@@ -137,6 +140,10 @@ export class MyCollectionComponent implements OnInit {
       // 'newest' -> Orden inverso por su id de registro en base de datos
       return (b.collection_id || 0) - (a.collection_id || 0);
     });
+
+    if (this.showOnlyFavorites()) {
+      cards = cards.filter(c => c.is_favorite);
+    }
 
     return cards;
   });
@@ -196,8 +203,10 @@ export class MyCollectionComponent implements OnInit {
   loadMyCollection(gameId: number) {
     this.isLoading.set(true);
     this.collectionService.getCollection(gameId).subscribe({
-      next: (data) => {
-        this.myCards.set(data);
+      next: (response) => {
+        // La respuesta ya no es un array, es el objeto con vault_value + collection paginada
+        this.myCards.set(response.collection.data);   // ← el array real está aquí
+        this.vaultValue.set(response.vault_value ?? 0); // ← KPI calculado en BD
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -231,5 +240,22 @@ export class MyCollectionComponent implements OnInit {
 
   isSetCollapsed(setName: string): boolean {
     return this.collapsedSets().includes(setName);
+  }
+
+  onFavoriteChange(event: { id: number, isFavorite: boolean }) {
+    // 1. Ya NO reconstruimos el array completo. 
+    // La UI ya se ha actualizado gracias a [(isFavorite)]="card.is_favorite"
+
+    // 2. Mandamos la petición al servidor silenciosamente
+    this.collectionService.toggleFavorite(event.id).subscribe({
+      error: () => {
+        console.error('Fallo al guardar favorito');
+        // Si el servidor falla, buscamos la carta exacta y revertimos su valor
+        const cardToRevert = this.myCards().find(c => c.collection_id === event.id);
+        if (cardToRevert) {
+          cardToRevert.is_favorite = !event.isFavorite;
+        }
+      }
+    });
   }
 }
