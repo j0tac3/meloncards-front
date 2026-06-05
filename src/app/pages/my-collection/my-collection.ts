@@ -90,7 +90,10 @@ export class MyCollectionComponent implements OnInit, OnDestroy {
   // ── Scroll infinito del escaparate ───────────────────────────────────────────
   @HostListener('window:scroll')
   onScroll() {
-    if (this.isSearching() || this.isDashLoading() || !this.dashHasMore()) return;
+    // 🛡️ FIX: Si no hay juego cargado todavía (!this.currentGameId()), ignoramos el scroll
+    if (!this.currentGameId() || this.isSearching() || this.isDashLoading() || !this.dashHasMore()) {
+      return;
+    }
 
     const scrolled    = window.innerHeight + window.scrollY;
     const totalHeight = document.documentElement.scrollHeight;
