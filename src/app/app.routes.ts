@@ -13,7 +13,10 @@ export const routes: Routes = [
   { path: 'my-collection', component: MyCollectionComponent },
   { path: 'expansiones', component: SetsComponent },
   { path: 'wishlist', component: WishlistComponent },
-  { path: 'collection/set/:id', loadComponent: () => import('./pages/set-collection/set-collection').then(m => m.SetCollectionComponent) },
+  {
+    path: 'collection/set/:id',
+    loadComponent: () => import('./pages/set-collection/set-collection').then(m => m.SetCollectionComponent)
+  },
   { path: '', redirectTo: '/catalog', pathMatch: 'full' }, 
   // 🚀 El comodín (**) siempre debe ser el ÚLTIMO elemento del array
   { path: '**', redirectTo: '/catalog' } 
