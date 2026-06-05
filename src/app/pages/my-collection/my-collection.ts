@@ -121,7 +121,6 @@ export class MyCollectionComponent implements OnInit, OnDestroy {
   }
 
   // ── Juegos ────────────────────────────────────────────────────────────────────
-  // ── Juegos ────────────────────────────────────────────────────────────────────
   loadGames() {
     this.gameService.getGames().subscribe({
       next: (games) => {
