@@ -11,12 +11,15 @@ export class CollectionService {
   private apiUrl = environment.apiUrl;
 
   // 🚀 NUEVO: Obtener la colección filtrando por Juego
-  getCollection(gameId?: number, page: number = 1): Observable<any> {
-    let params = new HttpParams().set('page', page.toString());
-    if (gameId) {
-      params = params.set('game_id', gameId.toString());
-    }
-    return this.http.get<any>(`${this.apiUrl}/collection`, { params });
+  // En tu collection.service.ts
+  getCollection(gameId: number, page: number = 1): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/collection`, {
+      params: { 
+        game_id: gameId.toString(),
+        page: page.toString(),
+        per_page: '40'
+      }
+    });
   }
 
   // 1. Obtener la lista maestra de estados (Mint, Near Mint...)
@@ -48,5 +51,43 @@ export class CollectionService {
       `${this.apiUrl}/collection/${collectionId}/favorite`, 
       {}
     );
+  }
+
+  /**
+   * Obtiene las expansiones paginadas con sus 10 últimas cartas (Modo Escaparate)
+   */
+  getDashboardSets(gameId: number, page: number = 1): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/collection/dashboard-sets`, {
+      params: { 
+        game_id: gameId.toString(), 
+        page: page.toString() 
+      }
+    });
+  }
+
+  /**
+   * Busca cartas específicas mezcladas en toda la colección (Modo Cuadrícula)
+   */
+  searchCollectionCards(gameId: number, searchTerm: string, page: number = 1): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/collection/search`, {
+      params: { 
+        game_id: gameId.toString(), 
+        search: searchTerm, 
+        page: page.toString() 
+      }
+    });
+  }
+
+  /**
+   * Obtiene todas las cartas de un set específico en la colección del usuario.
+   * Permite buscar localmente en ese set.
+   */
+  getSetCards(setId: number, searchTerm: string, page: number = 1): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/collection/set/${setId}`, {
+      params: { 
+        search: searchTerm, 
+        page: page.toString() 
+      }
+    });
   }
 }
