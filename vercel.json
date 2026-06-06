@@ -1,11 +1,6 @@
 {
-  "routes": [
-    { 
-      "handle": "filesystem" 
-    },
-    { 
-      "src": "/(.*)", 
-      "dest": "/index.html" 
-    }
-  ]
+  "framework": "angular",
+  "buildCommand": "ng build",
+  "outputDirectory": "dist/tcg-frontend",
+  "devCommand": "ng serve"
 }
