@@ -82,11 +82,12 @@ export class CollectionService {
    * Obtiene todas las cartas de un set específico en la colección del usuario.
    * Permite buscar localmente en ese set.
    */
-  getSetCards(setId: number, searchTerm: string, page: number = 1): Observable<any> {
+  getSetCards(setId: number, searchTerm: string, page: number = 1, sort: string = 'newest'): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/collection/set/${setId}`, {
       params: { 
         search: searchTerm, 
-        page: page.toString() 
+        page: page.toString(),
+        sort: sort // <-- Añadimos esto
       }
     });
   }

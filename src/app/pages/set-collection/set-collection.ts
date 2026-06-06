@@ -1,20 +1,21 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, HostListener } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Location } from '@angular/common';
-import { CollectionService } from '../../services/collection'; // Ajusta la ruta si es necesario
-import { FormsModule } from '@angular/forms';
+import { CollectionService } from '../../services/collection';
 import { CardComponent } from '../../components/card/card';
 import { CollectionModalComponent } from '../../components/collection-modal/collection-modal';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+
+// Imports exclusivos de interoperabilidad moderna
+import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, skip } from 'rxjs/operators';
 
 @Component({
   selector: 'app-set-collection',
   standalone: true,
-  imports: [RouterLink, FormsModule, CardComponent, CollectionModalComponent],
+  imports: [RouterLink, CardComponent, CollectionModalComponent],
   templateUrl: './set-collection.html'
 })
-export class SetCollectionComponent implements OnInit, OnDestroy {
+export class SetCollectionComponent {
   // ── Inyecciones ─────────────────────────────────────────────────────────────
   private route = inject(ActivatedRoute);
   private collectionService = inject(CollectionService);
@@ -22,7 +23,8 @@ export class SetCollectionComponent implements OnInit, OnDestroy {
 
   // ── Estado de la URL y Set ──────────────────────────────────────────────────
   setId = signal<number>(0);
-  setInfo = signal<{name: string, total_cards: number, owned_unique: number} | null>(null);
+  setInfo = signal<{name: string, total_cards: number, owned_unique: number, game_slug?: string} | null>(null);
+  gameSlug = computed(() => this.setInfo()?.game_slug ?? 'default');
 
   // ── Estado de la Cuadrícula ─────────────────────────────────────────────────
   cards = signal<any[]>([]);
@@ -30,10 +32,9 @@ export class SetCollectionComponent implements OnInit, OnDestroy {
   hasMore = signal<boolean>(true);
   isLoading = signal<boolean>(false);
 
-  // ── Buscador Local ──────────────────────────────────────────────────────────
+  // ── Buscador y Filtros ──────────────────────────────────────────────────────
   searchTerm = signal<string>('');
-  private searchSubject = new Subject<string>();
-  private destroy$ = new Subject<void>();
+  currentSort = signal<string>('newest'); // Opciones preparadas en el back
 
   // ── Modal ───────────────────────────────────────────────────────────────────
   selectedCard = signal<any | null>(null);
@@ -45,6 +46,26 @@ export class SetCollectionComponent implements OnInit, OnDestroy {
   });
   hasPrev = computed(() => this.currentIndex() > 0);
   hasNext = computed(() => this.currentIndex() < this.cards().length - 1);
+
+  // ── Inicialización (Sustituto de ngOnInit y ngOnDestroy) ────────────────────
+  constructor() {
+    // 1. Lectura de parámetros de la ruta
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.setId.set(Number(idParam));
+      this.loadCards(1);
+    }
+
+    // 2. Reactividad nativa para el buscador
+    toObservable(this.searchTerm).pipe(
+      skip(1),
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntilDestroyed()
+    ).subscribe(() => {
+      this.loadCards(1);
+    });
+  }
 
   // ── Scroll Infinito ─────────────────────────────────────────────────────────
   @HostListener('window:scroll')
@@ -59,49 +80,25 @@ export class SetCollectionComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Ciclo de vida e Inicialización ──────────────────────────────────────────
-  ngOnInit() {
-    // 1. Obtenemos el ID de la URL (ej: /collection/set/5)
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      this.setId.set(Number(idParam));
-      this.loadCards(1);
-    }
-
-    // 2. Escuchamos el buscador con 500ms de retraso
-    this.searchSubject.pipe(
-      debounceTime(500),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe(term => {
-      this.searchTerm.set(term);
-      this.loadCards(1);
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   // ── Acciones de Interfaz ────────────────────────────────────────────────────
-  onSearchInput(term: string) {
-    this.searchSubject.next(term);
+  goBack() {
+    this.location.back();
   }
 
-  goBack() {
-    this.location.back(); // Vuelve a "Mi colección" de forma nativa
+  onSortChange(newSort: string) {
+    this.currentSort.set(newSort);
+    this.loadCards(1);
   }
 
   // ── Petición al Servidor ────────────────────────────────────────────────────
   loadCards(page: number = 1) {
     this.isLoading.set(true);
     
-    this.collectionService.getSetCards(this.setId(), this.searchTerm(), page).subscribe({
+    this.collectionService.getSetCards(this.setId(), this.searchTerm(), page, this.currentSort()).subscribe({
       next: (response) => {
         if (page === 1) {
           this.cards.set(response.data);
-          if (response.set_info) this.setInfo.set(response.set_info); // Guardamos la info de cabecera
+          if (response.set_info) this.setInfo.set(response.set_info);
         } else {
           this.cards.update(cards => [...cards, ...response.data]);
         }
@@ -135,7 +132,6 @@ export class SetCollectionComponent implements OnInit, OnDestroy {
   onFavoriteChange(event: { id: number; isFavorite: boolean }) {
     this.collectionService.toggleFavorite(event.id).subscribe({
       error: () => {
-        // Revertir visualmente si falla
         const card = this.cards().find(c => c.collection_id === event.id);
         if (card) card.is_favorite = !event.isFavorite;
       }

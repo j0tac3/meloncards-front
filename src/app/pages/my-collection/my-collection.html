@@ -151,17 +151,6 @@
             </button>
           </div>
 
-          <!--
-            CARRUSEL HORIZONTAL
-            ─────────────────────────────────────────────────────────────────
-            FIX scroll horizontal: el truco es que el carrusel necesita
-            "salir" visualmente del padding del padre para llegar al borde,
-            pero sin expandir el layout. Lo logramos con:
-              • overflow-x-auto en el carrusel mismo
-              • overflow-x-hidden en el wrapper raíz (ya aplicado arriba)
-            El padding-bottom (pb-4) da espacio a la scrollbar del carrusel
-            sin que se solape con el contenido siguiente.
-          -->
           <div class="flex overflow-x-auto gap-4 pb-3 snap-x snap-mandatory scroll-smooth"
                style="scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent;">
 
