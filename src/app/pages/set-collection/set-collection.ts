@@ -12,7 +12,7 @@ import { debounceTime, distinctUntilChanged, skip } from 'rxjs/operators';
 @Component({
   selector: 'app-set-collection',
   standalone: true,
-  imports: [RouterLink, CardComponent, CollectionModalComponent],
+  imports: [ CardComponent, CollectionModalComponent],
   templateUrl: './set-collection.html'
 })
 export class SetCollectionComponent {
