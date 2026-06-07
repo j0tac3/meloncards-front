@@ -61,7 +61,7 @@ export class CardComponent implements OnInit {
     const c      = this.card();
     const region = this.currentRegion();
     const raw    = c.attributes?.image_url?.[region] ?? c.image_url;
-    return raw;
+    return 'https://wsrv.nl/?url=' + raw;
   });
 
   cardName = computed(() => {
