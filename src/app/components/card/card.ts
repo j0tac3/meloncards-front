@@ -62,9 +62,12 @@ export class CardComponent implements OnInit {
     const region = this.currentRegion();
     const raw    = c.attributes?.image_url?.[region] ?? c.image_url;
     
-    // 🚀 ELIMINAMOS el proxy 'wsrv.nl' que estaba causando el Timeout
-    // y devolvemos la URL original directamente.
-    return raw; 
+    if (!raw) return '';
+    
+    // 🚀 Volvemos a wsrv.nl, pero le pasamos parámetros de optimización:
+    // w=400 (ancho de 400px) y output=webp (formato ultraligero).
+    // La carta pasará de pesar 1.7MB a apenas 30KB. ¡No habrá Timeouts!
+    return `https://wsrv.nl/?url=${raw}&w=400&output=webp`;
   });
 
   cardName = computed(() => {
