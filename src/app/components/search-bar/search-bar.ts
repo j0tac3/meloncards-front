@@ -14,7 +14,7 @@ export class SearchBarComponent implements OnInit {
   onFilterChange = output<{ search: string; card_set_id: number | null }>();
   onDownloadChecklist = output<number>();
 
-  private searchTxt = '';
+  searchTxt = signal<string>('');
   
   // 🚀 CAMBIO CLAVE: Ahora es un Signal
   selectedSetId = signal<number | null>(null); 
@@ -46,7 +46,12 @@ export class SearchBarComponent implements OnInit {
   }
 
   onInputText(text: string) {
-    this.searchTxt = text;
+    this.searchTxt.set(text);
+    this.emitFilters();
+  }
+
+  clearSearch() {
+    this.searchTxt.set('');
     this.emitFilters();
   }
 
@@ -78,7 +83,7 @@ export class SearchBarComponent implements OnInit {
 
   private emitFilters() {
     this.onFilterChange.emit({
-      search: this.searchTxt,
+      search: this.searchTxt(),
       card_set_id: this.selectedSetId()
     });
   }

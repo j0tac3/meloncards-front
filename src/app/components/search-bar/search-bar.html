@@ -1,18 +1,31 @@
 <div class="flex flex-col md:flex-row gap-3 mb-6 w-full items-start md:items-center">
   
-  <div class="relative flex-grow w-full">
+  <div class="relative flex-grow w-full min-w-0">
     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
       <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
       </svg>
     </div>
+    
     <input 
       #txt
       type="text" 
+      [value]="searchTxt()"
       (input)="onInputText(txt.value)"
       placeholder="Buscar por nombre o código (ej. OP01-001)..."
-      class="h-11 w-full pl-10 pr-4 bg-white border border-slate-200 rounded-lg text-slate-700 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+      class="h-11 w-full pl-10 pr-10 bg-white border border-slate-200 rounded-lg text-slate-700 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
     >
+
+    @if (searchTxt().length > 0) {
+      <button 
+        (click)="clearSearch()"
+        class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition focus:outline-none"
+        title="Borrar texto">
+        <svg class="w-5 h-5 bg-slate-100 dark:bg-slate-800 rounded-full p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    }
   </div>
 
   <div class="w-full md:w-1/2 flex gap-3 min-w-0">

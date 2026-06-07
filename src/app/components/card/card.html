@@ -1,7 +1,7 @@
-<div class="group flex flex-col h-full bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-all duration-300 md:hover:shadow-2xl md:hover:-translate-y-1 md:hover:scale-[1.02] overflow-hidden">
+<div class="group relative flex flex-col h-full bg-[#101522] rounded-[20px] shadow-lg border border-slate-700/60 overflow-hidden transition-all duration-300 md:hover:-translate-y-1 md:hover:scale-[1.03] md:hover:shadow-2xl md:hover:shadow-indigo-500/10 cursor-pointer"
+     (click)="addClick.emit()">
 
-  <div class="relative w-full aspect-[2.5/3.5] cursor-pointer bg-slate-100 dark:bg-black/20"
-       (click)="addClick.emit()">
+  <div class="relative w-full aspect-[2.5/3.5] overflow-hidden bg-slate-900 flex-shrink-0 p-1">
     
     <img
       [src]="imageUrl()"
@@ -10,63 +10,71 @@
       class="w-full h-full object-contain"
       loading="lazy"
     >
-    <div class="holo-glare absolute inset-0 z-10 pointer-events-none"></div>
+    <div class="holo-glare absolute inset-0 z-10 pointer-events-none opacity-50"></div>
+
+    <div class="absolute inset-x-0 bottom-0 px-4 pb-3 flex justify-end items-end z-20">
+      
+      @if (card()?.attributes?.life) {
+        <div class="w-10 h-10 rounded-full border border-[#e4ae00] bg-black/60 backdrop-blur-md flex flex-col items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(228,174,0,0.15)]">
+          <span class="text-[#e4ae00] font-black text-sm leading-none translate-y-[1px]">{{ card()?.attributes?.life }}</span>
+          <span class="text-[#e4ae00] text-[5px] font-bold uppercase tracking-widest leading-none mt-1">Life</span>
+        </div>
+      }
+
+    </div>
   </div>
 
-  <div class="flex-shrink-0 flex flex-col gap-3 p-3.5 z-20 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
-       (click)="$event.stopPropagation()">
+  <div class="flex flex-col p-4 bg-[#101522] z-20 flex-grow" (click)="$event.stopPropagation()">
 
-    <div class="flex justify-between items-center">
-      
-      <span class="font-mono font-bold text-[11.5px] tracking-wider text-slate-500 dark:text-slate-400">
-        {{ card().card_number }}
+    <div class="flex items-center mb-1">
+      <span class="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400">
+        {{ cardCategory() || 'CARD' }}
+        @if (cardRarity()) {
+          <span class="mx-1 opacity-50">/</span> {{ cardRarity() }}
+        }
       </span>
-
-      @if (card().quantity > 0) {
-        <span class="flex items-center justify-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 border border-indigo-100/50 dark:border-indigo-500/20 shadow-sm">
-          x{{ card().quantity }}
-        </span>
-      }
     </div>
 
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-end mt-auto pt-2">
       
-      <div class="flex-1 truncate pr-2 flex items-center">
+      <div class="flex flex-col">
+        <span class="text-[7px] font-bold uppercase tracking-[0.15em] text-[#ab8986] mb-1.5 opacity-80">Precio de mercado</span>
         @if (card().market_price !== null && card().market_price !== undefined) {
-          <span class="block text-[15px] font-extrabold tracking-tight text-slate-900 dark:text-white leading-none translate-y-[1px]">
-            {{ card().market_price | currency:'EUR':'symbol':'1.2-2':'es-ES' }}
+          <span class="text-[20px] font-black text-white leading-none tracking-tight flex items-baseline gap-1">
+            {{ card().market_price | currency:'EUR':'':'1.2-2':'es-ES' }} <span class="text-[14px] text-slate-400 font-bold tracking-normal">€</span>
           </span>
         } @else {
-          <span class="block text-[0.75rem] italic text-slate-400 leading-none">
-            Sin precio
-          </span>
+          <span class="text-[11px] italic text-slate-500 leading-none pb-0.5">Sin precio</span>
         }
       </div>
 
-      <div class="flex items-center gap-2 flex-shrink-0 -mr-2">
+      <div class="flex items-center gap-3">
+        
+        <div class="flex flex-col items-end pr-1">
+          <span class="text-[12px] font-black text-[#69d8d4] tracking-wider mb-1">{{ card().card_number }}</span>
+          <span class="text-[6px] font-bold uppercase tracking-[0.15em] text-slate-500">Codigo de carta</span>
+        </div>
 
-        @if (isCollectionCard()) {
+        @if (isAuthenticated() && !isCollectionCard()) {
+          <button (click)="onToggleWishlist($event)"
+                  class="flex items-center justify-center w-9 h-9 rounded-xl bg-[#1a2133] border border-[#2d3449] text-slate-400 hover:text-white hover:bg-slate-700 hover:border-slate-500 transition-all duration-200 shadow-sm focus:outline-none"
+                  title="Lista de deseos">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 class="w-[17px] h-[17px] transition-colors duration-300 {{ isWishlisted() ? 'text-[#69d8d4] fill-[#69d8d4]' : 'fill-none stroke-current stroke-[2.5]' }}">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+            </svg>
+          </button>
+        } @else if (isCollectionCard()) {
           <button (click)="onToggleFavorite($event)"
-                  class="flex items-center justify-center w-[40px] h-[40px] rounded-full transition-colors duration-200 text-slate-400 dark:text-slate-500 md:hover:bg-slate-100 md:dark:hover:bg-slate-800 md:hover:text-red-500 focus:outline-none"
+                  class="flex items-center justify-center w-9 h-9 rounded-xl bg-[#1a2133] border border-[#2d3449] text-slate-400 hover:text-[#ffb4ab] hover:bg-slate-700 hover:border-slate-500 transition-all duration-200 shadow-sm focus:outline-none"
                   title="Favorito">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                 class="w-[19px] h-[19px] transition-colors duration-300 {{ isFavorite() ? 'text-red-500 fill-red-500' : 'fill-none stroke-current stroke-[2.5]' }}">
+                 class="w-[17px] h-[17px] transition-colors duration-300 {{ isFavorite() ? 'text-[#ffb4ab] fill-[#ffb4ab]' : 'fill-none stroke-current stroke-[2.5]' }}">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
             </svg>
           </button>
         }
 
-        @if (isAuthenticated()) {
-          <button (click)="onToggleWishlist($event)"
-                  class="flex items-center justify-center w-[40px] h-[40px] rounded-full transition-colors duration-200 text-slate-400 dark:text-slate-500 md:hover:bg-slate-100 md:dark:hover:bg-slate-800 md:hover:text-blue-500 focus:outline-none"
-                  title="Lista de deseos">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                 class="w-[19px] h-[19px] transition-colors duration-300 {{ isWishlisted() ? 'text-blue-500 fill-blue-500' : 'fill-none stroke-current stroke-[2.5]' }}">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
-            </svg>
-          </button>
-        }
-        
       </div>
     </div>
   </div>
