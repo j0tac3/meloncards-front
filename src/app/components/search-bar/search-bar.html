@@ -24,21 +24,22 @@
         (click)="toggleDropdown()" 
         class="h-11 w-full flex items-center justify-between px-3 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm text-left">
         
-        <div class="flex items-center gap-3 truncate">
+        <div class="flex items-center gap-3 flex-1 min-w-0 pr-2">
+          
           @if (selectedSet()) {
             @if (selectedSet()?.image_url) {
               <img [src]="selectedSet()?.image_url" class="w-6 h-6 rounded-md object-cover flex-shrink-0 shadow-sm" alt="Set">
             }
-            <span class="font-bold text-slate-800 truncate">{{ selectedSet()?.name }}</span>
+            <span class="font-bold text-slate-800 truncate block">{{ selectedSet()?.name }}</span>
           } @else {
             <svg class="w-5 h-5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
             </svg>
-            <span class="text-slate-600 font-medium truncate">Todas las Expansiones</span>
+            <span class="text-slate-600 font-medium truncate block">Todas las Expansiones</span>
           }
         </div>
 
-        <svg class="w-5 h-5 text-slate-400 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
         </svg>
       </button>
@@ -46,8 +47,8 @@
       @if (isDropdownOpen()) {
         <div class="fixed inset-0 bg-black/60 z-40 md:bg-transparent" (click)="closeDropdown()"></div>
 
-        <div class="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden
-                    md:absolute md:bottom-auto md:top-full md:left-0 md:mt-2 md:w-[450px] md:max-h-[500px] md:rounded-xl md:border md:border-slate-200">
+        <div class="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl max-h-[85vh] min-h-[70dvh] flex flex-col shadow-2xl overflow-hidden
+                    md:absolute md:bottom-auto md:top-full md:left-0 md:mt-2 md:w-[450px] md:max-h-[500px] md:min-h-0 md:rounded-xl md:border md:border-slate-200">
           
           <div class="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-slate-100 z-10 px-4 py-3">
             <div class="flex justify-between items-center mb-3 md:hidden">
@@ -71,20 +72,20 @@
           <div class="overflow-y-auto flex-grow p-2">
             <div (click)="onSelectCustomSet(null)" 
                  class="flex items-center gap-4 p-3 rounded-xl cursor-pointer hover:bg-slate-50 transition group"
-                 [class.bg-indigo-50]="selectedSetId === null">
+                 [class.bg-indigo-50]="selectedSetId() === null">
               <div class="w-12 h-12 bg-slate-100 text-slate-500 rounded-lg flex items-center justify-center flex-shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                 </svg>
               </div>
               <div class="font-bold text-slate-800 flex-grow">Todas las Expansiones</div>
-              @if (selectedSetId === null) { <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> }
+              @if (selectedSetId() === null) { <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> }
             </div>
 
             @for (set of filteredSets(); track set.id) {
               <div (click)="onSelectCustomSet(set.id)" 
                    class="flex items-center gap-4 p-3 rounded-xl cursor-pointer hover:bg-slate-50 transition group"
-                   [class.bg-indigo-50]="selectedSetId === set.id">
+                   [class.bg-indigo-50]="selectedSetId() === set.id">
                 
                 <div class="w-12 h-12 flex-shrink-0 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
                   @if (set.image_url) {
@@ -103,7 +104,7 @@
                   </div>
                 </div>
 
-                @if (selectedSetId === set.id) {
+                @if (selectedSetId() === set.id) {
                   <div class="flex-shrink-0 text-indigo-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                   </div>
@@ -121,7 +122,7 @@
       }
     </div>
 
-    @if (selectedSetId !== null) {
+    @if (selectedSetId() !== null) {
       <button 
         (click)="onDownloadClick()"
         title="Descargar Checklist en PDF"

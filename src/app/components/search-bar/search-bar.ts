@@ -15,13 +15,13 @@ export class SearchBarComponent implements OnInit {
   onDownloadChecklist = output<number>();
 
   private searchTxt = '';
-  selectedSetId: number | null = null; 
+  
+  // 🚀 CAMBIO CLAVE: Ahora es un Signal
+  selectedSetId = signal<number | null>(null); 
 
-  // 🚀 NUEVO: Estado del Custom Dropdown / Bottom Sheet
   isDropdownOpen = signal<boolean>(false);
   dropdownSearchTxt = signal<string>('');
 
-  // 🚀 NUEVO: Filtro en tiempo real para el menú flotante
   filteredSets = computed(() => {
     const term = this.dropdownSearchTxt().toLowerCase();
     if (!term) return this.sets();
@@ -31,9 +31,9 @@ export class SearchBarComponent implements OnInit {
     );
   });
 
-  // 🚀 NUEVO: Obtener el objeto completo de la expansión seleccionada
+  // 🚀 Ahora sí recalculará cada vez que el usuario elija una nueva expansión
   selectedSet = computed(() => {
-    const id = this.selectedSetId;
+    const id = this.selectedSetId(); 
     if (!id) return null;
     return this.sets().find(set => set.id === id) || null;
   });
@@ -41,7 +41,7 @@ export class SearchBarComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       const setIdFromUrl = params['set'];
-      this.selectedSetId = setIdFromUrl ? Number(setIdFromUrl) : null;
+      this.selectedSetId.set(setIdFromUrl ? Number(setIdFromUrl) : null);
     });
   }
 
@@ -50,17 +50,15 @@ export class SearchBarComponent implements OnInit {
     this.emitFilters();
   }
 
-  // 🚀 REFACTORIZADO: Lógica de selección del menú custom
   onSelectCustomSet(setId: number | null) {
-    this.selectedSetId = setId;
+    this.selectedSetId.set(setId);
     this.closeDropdown();
     this.emitFilters();
   }
 
-  // Controles del Dropdown
   toggleDropdown() {
     this.isDropdownOpen.update(v => !v);
-    if (this.isDropdownOpen()) this.dropdownSearchTxt.set(''); // Resetea el buscador al abrir
+    if (this.isDropdownOpen()) this.dropdownSearchTxt.set('');
   }
 
   closeDropdown() {
@@ -72,15 +70,16 @@ export class SearchBarComponent implements OnInit {
   }
 
   onDownloadClick() {
-    if (this.selectedSetId) {
-      this.onDownloadChecklist.emit(this.selectedSetId);
+    const id = this.selectedSetId();
+    if (id) {
+      this.onDownloadChecklist.emit(id);
     }
   }
 
   private emitFilters() {
     this.onFilterChange.emit({
       search: this.searchTxt,
-      card_set_id: this.selectedSetId
+      card_set_id: this.selectedSetId()
     });
   }
 }

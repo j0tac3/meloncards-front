@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, effect } from '@angular/core';
 import { RouterOutlet, RouterModule, Router, RouterLinkActive } from '@angular/router';
 import { AuthService } from './services/auth.service';
 
@@ -15,29 +15,45 @@ export class App implements OnInit {
   isAuthenticated = signal<boolean>(false);
   isSidebarExpanded = signal<boolean>(true);
 
+  // Señal del tema
   isDarkMode = signal<boolean>(false);
   
-  // 🚀 AÑADIDO: Control del menú lateral en móviles
   isMobileSidebarOpen = signal<boolean>(false);
+
+  constructor() {
+    // 1. Al cargar la app, leemos si el index.html ya puso la clase 'dark'
+    if (typeof window !== 'undefined') {
+      const isDark = document.documentElement.classList.contains('dark');
+      this.isDarkMode.set(isDark);
+    }
+
+    // 2. EFECTO: Angular vigilará esta señal. Si cambia, aplica la clase y guarda en localStorage
+    effect(() => {
+      if (typeof window !== 'undefined') {
+        const dark = this.isDarkMode();
+        if (dark) {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        }
+      }
+    });
+  }
   
   toggleSidebar() {
     this.isSidebarExpanded.set(!this.isSidebarExpanded());
   }
 
-  // 🚀 AÑADIDO: Métodos para abrir/cerrar el menú en móvil
   toggleMobileSidebar() {
     this.isMobileSidebarOpen.set(!this.isMobileSidebarOpen());
   }
 
   toggleTheme() {
-    this.isDarkMode.set(!this.isDarkMode());
-    if (this.isDarkMode()) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    // 🚀 Simplificado: Como tenemos un 'effect', solo cambiamos el valor de la señal.
+    // El efecto se disparará solo y hará el resto del trabajo.
+    this.isDarkMode.update(dark => !dark);
   }
 
   closeMobileSidebar() {
