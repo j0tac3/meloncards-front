@@ -67,7 +67,7 @@ export class CardComponent implements OnInit {
     // 🚀 Volvemos a wsrv.nl, pero le pasamos parámetros de optimización:
     // w=400 (ancho de 400px) y output=webp (formato ultraligero).
     // La carta pasará de pesar 1.7MB a apenas 30KB. ¡No habrá Timeouts!
-    return `https://wsrv.nl/?url=${raw}&w=400&output=webp`;
+    return `https://images.weserv.nl/?url=${encodeURIComponent(raw)}&w=400&output=webp`;
   });
 
   cardName = computed(() => {
