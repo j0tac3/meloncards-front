@@ -2,6 +2,8 @@ import { Component, input, output, computed, signal, inject, OnInit, model } fro
 import { RouterModule } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { WishlistService } from '../../services/wishlist';
+// 🚀 IMPORTANTE: Importamos el entorno para leer tu environment.apiUrl
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-card',
@@ -57,17 +59,28 @@ export class CardComponent implements OnInit {
   }
 
   // ── Computed: Datos visuales básicos ────────────────────────────
+  
+  // 🚀 LA NUEVA LÓGICA DE IMAGEN DIRECTA A TU LARAVEL
   imageUrl = computed(() => {
-    const c      = this.card();
-    const region = this.currentRegion();
-    const raw    = c.attributes?.image_url?.[region] ?? c.image_url;
+    const c = this.card();
+    const region = this.currentRegion(); 
+    const cardNumber = c.card_number;
+    const rawUrl = c.attributes?.image_url?.[region] ?? c.image_url;
     
-    if (!raw) return '';
+    if (!cardNumber || !rawUrl) return '';
+
+    // Sacamos el Set (ej. "EB01")
+    const setId = cardNumber.split('-')[0] || 'PROMO';
     
-    // 🚀 Volvemos a wsrv.nl, pero le pasamos parámetros de optimización:
-    // w=400 (ancho de 400px) y output=webp (formato ultraligero).
-    // La carta pasará de pesar 1.7MB a apenas 30KB. ¡No habrá Timeouts!
-    return `https://images.weserv.nl/?url=${encodeURIComponent(raw)}&w=400&output=webp`;
+    // Extraemos la extensión real (png, jpg)
+    const extension = rawUrl.split('.').pop()?.split('?')[0] || 'png';
+    const filename = `${cardNumber}.${extension}`;
+
+    // Sacamos la URL base (quitando el /api si lo tiene environment.apiUrl)
+    const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+
+    // Devolvemos la ruta directa al archivo público de Laravel
+    return `${baseUrl}/storage/cards/${setId}/${region}/${filename}`;
   });
 
   cardName = computed(() => {
@@ -76,7 +89,7 @@ export class CardComponent implements OnInit {
     return c.attributes?.name?.[region] ?? c.name;
   });
 
-  // ── 🚀 NUEVO: Computed para Etiquetas (Badges) a prueba de fallos ──
+  // ── Computed para Etiquetas (Badges) a prueba de fallos ──
 
   cardCategory = computed(() => {
     const attrs = this.card().attributes;
