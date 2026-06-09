@@ -1,56 +1,58 @@
-<div class="card-perspective aspect-[2.5/3.65] group cursor-pointer" (click)="toggleFlip()">
+<div class="card-perspective relative w-full max-w-[260px] mx-auto aspect-[2.5/3.65] group cursor-pointer" (click)="toggleFlip()">
   <div class="card-inner" [class.is-flipped]="isFlipped()">
     
-    <div class="card-front relative p-1.5 sm:p-2 bg-gradient-to-br from-white/20 to-white/5 dark:from-slate-700/30 dark:to-slate-900/40 backdrop-blur-xl border-[3px] border-t-white/80 border-l-white/50 border-b-white/10 border-r-white/10 dark:border-t-slate-400/60 dark:border-l-slate-500/40 dark:border-b-slate-800/60 dark:border-r-slate-800/60 rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7),inset_0_0_15px_rgba(255,255,255,0.4)] dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.9),inset_0_0_15px_rgba(255,255,255,0.05)] overflow-hidden transition-all flex flex-col justify-between group-hover:shadow-[0_30px_60px_-15px_rgba(99,102,241,0.2),inset_0_0_20px_rgba(255,255,255,0.5)]">
+    <div class="card-front relative p-1 sm:p-1.5 bg-gradient-to-br from-white/20 to-white/5 dark:from-slate-700/30 dark:to-slate-900/40 backdrop-blur-xl border-[3px] border-t-white/80 border-l-white/50 border-b-white/10 border-r-white/10 dark:border-t-slate-400/60 dark:border-l-slate-500/40 dark:border-b-slate-800/60 dark:border-r-slate-800/60 rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7),inset_0_0_15px_rgba(255,255,255,0.4)] dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.9),inset_0_0_15px_rgba(255,255,255,0.05)] overflow-hidden transition-all flex flex-col justify-between group-hover:shadow-[0_30px_60px_-15px_rgba(99,102,241,0.2),inset_0_0_20px_rgba(255,255,255,0.5)]">
       
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-[18px] bg-gradient-to-b from-slate-400 via-slate-600 to-slate-800 rounded-b-md shadow-[inset_0_-2px_4px_rgba(0,0,0,0.6),0_4px_6px_rgba(0,0,0,0.3)] z-40 flex items-center justify-center border-b border-x border-slate-300/40 dark:border-slate-500/50 pb-[1px]">
-        
-        <div class="relative bg-stone-200/95 dark:bg-zinc-300/90 border border-stone-300/80 px-3 py-[1px] rounded-sm shadow-[0_1px_3px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.8)] flex items-center justify-center">
-          <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-10 pointer-events-none rounded-sm"></div>
-          <span class="text-[8px] font-black text-stone-800 tracking-widest font-mono z-10 leading-none mt-[1px]">{{ cardCode() }}</span>
-        </div>
-
-      </div>
-
       <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent pointer-events-none z-30 mix-blend-overlay opacity-80"></div>
       
-      <div class="absolute inset-[5px] sm:inset-[7px] rounded-lg border-2 border-black/40 dark:border-black/80 shadow-[inset_0_15px_30px_rgba(0,0,0,0.8),inset_0_-5px_15px_rgba(0,0,0,0.6)] pointer-events-none z-30"></div>
-      <div class="absolute inset-[5px] sm:inset-[7px] rounded-lg border-b border-r border-white/20 pointer-events-none z-30"></div>
+      <div class="absolute inset-0 pointer-events-none z-30 transition-transform duration-75"
+           [style.background]="'radial-gradient(circle at ' + glareX() + '% ' + glareY() + '%, rgba(255,255,255,0.15) 0%, transparent 60%)'">
+      </div>
 
-      <div class="relative flex-1 min-h-0 w-full flex items-center justify-center z-10 mt-[22px] mb-2 px-1">
+      <div class="absolute inset-[5px] sm:inset-[7px] rounded-lg border-2 border-black/40 dark:border-black/80 shadow-[inset_0_15px_30px_rgba(0,0,0,0.8),inset_0_-5px_15px_rgba(0,0,0,0.6)] pointer-events-none z-10"></div>
+      <div class="absolute inset-[5px] sm:inset-[7px] rounded-lg border-b border-r border-white/20 pointer-events-none z-10"></div>
+
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-[18px] sm:h-[20px] bg-gradient-to-b from-slate-400 via-slate-600 to-slate-800 rounded-b-md shadow-[inset_0_-2px_4px_rgba(0,0,0,0.6),0_4px_6px_rgba(0,0,0,0.3)] z-40 flex items-center justify-center border-b border-x border-slate-300/40 dark:border-slate-500/50 pb-[1px]">
+        <div class="relative bg-stone-200/95 dark:bg-zinc-300/90 border border-stone-300/80 px-3 py-[1px] rounded-sm shadow-[0_1px_3px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.8)] flex items-center justify-center">
+          <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-10 pointer-events-none rounded-sm"></div>
+          <span class="text-[12px] font-black text-stone-800 tracking-widest font-mono z-10 leading-none mt-[1px]">{{ cardCode() }}</span>
+        </div>
+      </div>
+
+      <div class="relative flex-1 min-h-0 w-full flex items-center justify-center z-20 mt-[22px] mb-2 px-1">
         <img [src]="imageUrl()" [alt]="cardName()" class="w-full h-full object-contain rounded-[4px] drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
       </div>
       
-      <div class="relative w-[88%] mx-auto mb-2 bg-stone-200/95 dark:bg-zinc-300/90 border border-stone-300/80 px-5 py-1.5 rounded-md shadow-[0_4px_10px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.6)] flex justify-between items-center z-20 shrink-0">
+      <div class="relative w-[88%] mx-auto mb-2 bg-stone-200/95 dark:bg-zinc-300/90 border border-stone-300/80 px-4 sm:px-5 py-1.5 rounded-md shadow-[0_4px_10px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.6)] flex justify-between items-center z-20 shrink-0">
         
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-10 pointer-events-none rounded-md"></div>
 
         <div class="flex items-center relative z-10 flex-1">
           @if (cardPrice() !== null && cardPrice() !== '0.00') {
-            <span class="text-[13px] font-black font-mono text-stone-800 leading-none tracking-tight">
-              {{ cardPrice() | currency:'EUR':'':'1.2-2':'es-ES' }}<span class="text-[9px] font-bold ml-0.5 text-stone-500">€</span>
+            <span class="text-[11px] sm:text-[13px] font-black font-mono text-stone-800 leading-none tracking-tight">
+              {{ cardPrice() | currency:'EUR':'':'1.2-2':'es-ES' }}<span class="text-[8px] sm:text-[9px] font-bold ml-0.5 text-stone-500">€</span>
             </span>
           } @else {
-            <span class="text-[12px] font-bold font-mono text-stone-400/60 tracking-widest leading-none">--</span>
+            <span class="text-[10px] sm:text-[12px] font-bold font-mono text-stone-400/60 tracking-widest leading-none">--</span>
           }
         </div>
 
-        <div class="absolute left-1/2 -translate-x-1/2 h-3.5 flex gap-[1px] items-center opacity-40 pointer-events-none">
-          <div class="w-[1px] h-full bg-stone-800"></div><div class="w-[2px] h-full bg-stone-800"></div><div class="w-[1px] h-full bg-stone-800"></div><div class="w-[3px] h-full bg-stone-800"></div><div class="w-[1px] h-full bg-stone-800"></div><div class="w-[2px] h-full bg-stone-800"></div><div class="w-[1px] h-full bg-stone-800"></div>
+        <div class="absolute left-1/2 -translate-x-1/2 flex items-center justify-center opacity-50 pointer-events-none">
+          <div class="w-3.5 h-3.5 rounded-full bg-gradient-to-b from-stone-400 to-stone-300 border border-stone-400 shadow-[inset_0_1px_3px_rgba(0,0,0,0.4),0_1px_0_rgba(255,255,255,0.8)] flex items-center justify-center">
+            <div class="w-1 h-1 rounded-full bg-stone-600 shadow-[inset_0_1px_1px_rgba(0,0,0,0.8)]"></div>
+          </div>
         </div>
 
         <div class="flex justify-end items-center relative z-10 flex-1">
           @if (userQuantity() > 0) {
-            <span class="text-[13px] font-extrabold font-mono text-stone-800 leading-none">
+            <span class="text-[11px] sm:text-[13px] font-extrabold font-mono text-stone-800 leading-none">
               x{{ userQuantity() }}
             </span>
           } @else {
-            <span class="text-[12px] font-bold font-mono text-stone-400/60 tracking-widest leading-none">--</span>
+            <span class="text-[10px] sm:text-[12px] font-bold font-mono text-stone-400/60 tracking-widest leading-none">--</span>
           }
         </div>
-
       </div>
-
     </div>
 
     <div class="card-back relative p-3 sm:p-4 bg-[#101522] border-[4px] border-slate-700 rounded-xl shadow-2xl flex flex-col overflow-hidden" (click)="$event.stopPropagation()">
