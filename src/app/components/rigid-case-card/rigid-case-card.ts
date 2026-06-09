@@ -58,7 +58,7 @@ export class RigidCaseCardComponent {
     const rawUrl = c.image_url || c.attributes?.image_url?.[region];
     if (!rawUrl) return '';
 
-    const setId = c.card_number?.split('-')[0] || 'PROMO';
+    const setId = c.unique_id?.split('-')[0] || 'PROMO';
     const rawUrlWithoutQuery = rawUrl.split('?')[0];
     const filename = rawUrlWithoutQuery.split('/').pop();
     const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');

@@ -74,7 +74,7 @@ export class CardComponent implements OnInit {
     
     // Extraemos la extensión real (png, jpg)
     const extension = rawUrl.split('.').pop()?.split('?')[0] || 'png';
-    const filename = `${cardNumber}.${extension}`;
+    const filename = `${c.unique_id}.${extension}`;
 
     // Sacamos la URL base (quitando el /api si lo tiene environment.apiUrl)
     const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
