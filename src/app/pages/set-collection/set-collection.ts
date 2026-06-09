@@ -4,6 +4,8 @@ import { Location } from '@angular/common';
 import { CollectionService } from '../../services/collection';
 import { CardComponent } from '../../components/card/card';
 import { CollectionModalComponent } from '../../components/collection-modal/collection-modal';
+import { GradedCardComponent } from '../../components/graded-card/graded-card'
+import { RigidCaseCardComponent } from '../../components/rigid-case-card/rigid-case-card'
 
 // Imports exclusivos de interoperabilidad moderna
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,7 +14,7 @@ import { debounceTime, distinctUntilChanged, skip } from 'rxjs/operators';
 @Component({
   selector: 'app-set-collection',
   standalone: true,
-  imports: [ CardComponent, CollectionModalComponent],
+  imports: [ CardComponent, CollectionModalComponent, GradedCardComponent, RigidCaseCardComponent],
   templateUrl: './set-collection.html'
 })
 export class SetCollectionComponent {
@@ -20,6 +22,7 @@ export class SetCollectionComponent {
   private route = inject(ActivatedRoute);
   private collectionService = inject(CollectionService);
   private location = inject(Location);
+  currentRegion = signal<string>('en');
 
   // ── Estado de la URL y Set ──────────────────────────────────────────────────
   setId = signal<number>(0);

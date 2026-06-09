@@ -81,6 +81,9 @@ export class CardComponent implements OnInit {
 
     // Devolvemos la ruta directa al archivo público de Laravel
     return `${baseUrl}/storage/cards/${setId}/${region}/${filename}`;
+    // Ahora sí, la ruta exacta con /images/ incluida
+    //return `${baseUrl}/storage/cards/${setId}/${region}/images/${filename}`;
+    // Devolvemos la ruta directa al archivo público de Laravel (¡añadimos /images/!)
   });
 
   cardName = computed(() => {

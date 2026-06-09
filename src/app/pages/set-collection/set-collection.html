@@ -59,22 +59,18 @@
       <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
     </div>
   } @else {
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-      @for (card of cards(); track card.collection_id) {
-        <div class="cursor-pointer transition-transform hover:scale-[1.02]" (click)="openModal(card)">
-          <app-card 
-            [card]="card" 
-            [isAuthenticated]="true" 
-            [isCollectionCard]="true"
-            [gameSlug]="gameSlug()"
-            [(isFavorite)]="card.is_favorite"
-            (favoriteChange)="onFavoriteChange($event)">
-          </app-card>
-        </div>
-      } @empty {
-        <div class="col-span-full py-16 text-center text-slate-500 font-medium bg-white/50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
-          No se han encontrado cartas.
-        </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <!-- @for (card of cards(); track card.id) {
+        <app-graded-card  [card]="card" 
+                          [grade]="10" 
+                          [currentRegion]="currentRegion()">
+        </app-graded-card>
+      } -->
+      
+      @for (card of cards(); track $index) {
+        <app-rigid-case-card 
+          [card]="card">
+        </app-rigid-case-card>
       }
     </div>
 
